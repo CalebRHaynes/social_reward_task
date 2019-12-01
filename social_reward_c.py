@@ -25,7 +25,7 @@ version = subjDlg.data[2]
 #parameter file for Trial, ITI, win or lose, and image and face ordering, set window, response keys
 reference = pd.read_csv(('reference.csv'), header = 0)
 win = visual.Window([1000,750], monitor="testMonitor", units="deg", 
-                    fullscr=False, allowGUI=False, screen=1)
+                    fullscr=True, allowGUI=False, screen=1)
 responseKeys=('2','3','z')
 
 #Setting image, face, fixation, and timing. Writing instructions
