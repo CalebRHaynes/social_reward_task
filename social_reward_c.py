@@ -21,7 +21,6 @@ if subjDlg.OK == False:
     core.quit()
 #store gui variables
 subj_id = subjDlg.data[0]
-subdir = (f'data/{subj_id}')
 task_order = subjDlg.data[1]
 version = subjDlg.data[2]
 
@@ -45,6 +44,13 @@ fb_dur = 1.0
 instruct_screen = visual.TextStim(win, text='''Hello! This is the picture task.
 \n \nPress the index finger button to continue.''', pos = (0,0), wrapWidth=45, height = 1.2)
 
+instruct_screen_practice = visual.TextStim(win, text='''Hello! This is a practice for the picture task.
+\n \nPress the index finger button to continue.''', pos = (0,0), wrapWidth=45, height = 1.2)
+
+instruct_screen1_image = visual.TextStim(win, text='''In this task, you will see two pictures on the computer screen, only one of them will have a prize behind it. 
+\n \nWe want you to tell us which picture you think contains a prize. 
+\n \nPress the index finger button to continue.''', pos = (0,0), wrapWidth=45, height = 1.2)
+
 instruct_screen1_image = visual.TextStim(win, text='''In this task, you will see two pictures on the computer screen, only one of them will have a prize behind it. 
 \n \nWe want you to tell us which picture you think contains a prize. 
 \n \nPress the index finger button to continue.''', pos = (0,0), wrapWidth=45, height = 1.2)
@@ -61,7 +67,17 @@ instruct_screen3_image = visual.TextStim(win, text='''If you choose correctly, y
 \n \nIf you are not fast enough, the computer will make a decision for you at random, so make sure you are responding quickly. 
 \n \nOnce you see the arrow, that round is over.''', pos = (0,0), wrapWidth=45, height = 1.2)
 
+instruct_screen3_image_practice = visual.TextStim(win, text='''If you choose correctly, you will see a green arrow pointing up, meaning that you won 50 cents.
+\n \nIf you choose incorrectly, you will see a red arrow pointing down, meaning that you lost 25 cents.
+\n \nIf you are not fast enough, the computer will make a decision for you at random, so make sure you are responding quickly. 
+\n \nOnce you see the arrow, that round is over.''', pos = (0,0), wrapWidth=45, height = 1.2)
+
 instruct_screen3_face = visual.TextStim(win, text='''If you choose correctly, you will see a green arrow pointing up, meaning that you chose the person who said they liked you.
+\n \nIf you choose incorrectly, you will see a red arrow pointing down, meaning that you did not choose the person who said they liked you; that person actually disliked you.
+\n \nIf you are not fast enough, the computer will make a decision for you at random, so make sure you are responding quickly. 
+\n \nOnce you see the arrow, that round is over.''', pos = (0,0), wrapWidth=45, height = 1.2)
+
+instruct_screen3_face_practice = visual.TextStim(win, text='''If you choose correctly, you will see a green arrow pointing up, meaning that you chose the person who said they liked you.
 \n \nIf you choose incorrectly, you will see a red arrow pointing down, meaning that you did not choose the person who said they liked you; that person actually disliked you.
 \n \nIf you are not fast enough, the computer will make a decision for you at random, so make sure you are responding quickly. 
 \n \nOnce you see the arrow, that round is over.''', pos = (0,0), wrapWidth=45, height = 1.2)
@@ -69,39 +85,55 @@ instruct_screen3_face = visual.TextStim(win, text='''If you choose correctly, yo
 ready_screen = visual.TextStim(win, text='''Please wait for the game to begin! 
 \n\nRemember to keep your head still!''', height=1.5, wrapWidth=30)
 
+ready_screen_practice = visual.TextStim(win, text='''Please wait for the practice game to begin! 
+\n\nRemember to keep your head still!''', height=1.5, wrapWidth=30)
+
 def do_run(stimset):
-    expstart = time.time()
     #instructions
-    instruct_screen.draw()
+    if version == 'A' or 'B':
+        instruct_screen.draw()
+    else:
+        instruct_screen_practice.draw()
     win.flip()
+    event.waitKeys(keyList=('space','2'))
+    
     if stimset == 'face':
-        event.waitKeys(keyList=('space','2'))
         instruct_screen1_face.draw()
         win.flip()
     else:
-        event.waitKeys(keyList=('space','2'))
         instruct_screen1_image.draw()
         win.flip()
     event.waitKeys(keyList=('space','2'))
+    
     instruct_screen2.draw()
     win.flip()
-    if stimset == 'face':
-        event.waitKeys(keyList=('space','2'))
-        instruct_screen3_face.draw()
-        win.flip()
-    else:
-        event.waitKeys(keyList=('space','2'))
-        instruct_screen3_image.draw()
-        win.flip()
     event.waitKeys(keyList=('space','2'))
-
+    
+    if stimset == 'face':
+        if version == 'A' or 'B':
+            instruct_screen3_face.draw()
+        else:
+            instruct_screen3_face_practice.draw()
+    else:
+        if version == 'A' or 'B':
+            instruct_screen3_image.draw()
+        else:
+            instruct_screen3_image_practice.draw()
+    win.flip()
+    event.waitKeys(keyList=('space','2'))
+    
     #wait for scan trigger 
-    ready_screen.draw()
+    if version == 'A' or 'B':
+        ready_screen.draw()
+    else:
+        ready_screen_practice.draw()
     win.flip()
     event.waitKeys(keyList=('equal'))
     run_start = time.time()
+    
     #set Version ITI, Image orders, feedback order
     pic_path = os.path.join(os.getcwd(), 'pictureFolder', f'{version}_{stimset}')
+    
     #lists to store logging
     clock = core.Clock()
     clock.reset()
@@ -190,7 +222,6 @@ def do_run(stimset):
                 print('Feedback Error')
             feedback_dur = clock.getTime() - feedback_onset
             
-            
             #ITI
             ITI_onset = clock.getTime()
             ITI = reference.loc[reference.index[row_counter], f'{version}_ITI']
@@ -214,14 +245,12 @@ def do_run(stimset):
             resp_val.append(selected)
             responsetime.append(rt)
             
-
             condition.append('fixation_2')
             onset.append(fixationPost_onset)
             duration.append(fixationPre_dur)
             resp_val.append('999')
             responsetime.append('999')
             
-
             condition.append('feedback ' + fb_type)
             onset.append(feedback_onset)
             duration.append(feedback_dur)
@@ -259,7 +288,6 @@ def do_run(stimset):
     event.clearEvents()
     return;
 
-
 def all_run():
     print(subj_id)
     try:
@@ -279,9 +307,6 @@ def all_run():
     else:
         core.quit()
     return;
-    expend = time.time()
-    exptime = expstart - expend
-    print(exptime)
 
 all_run()
 core.quit()
